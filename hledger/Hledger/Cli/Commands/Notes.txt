@@ -1,0 +1,11 @@
+notes Show notes.
+
+_FLAGS_
+
+This command lists all notes that appear in transactions.
+
+Examples:
+
+$ hledger notes
+Petrol
+Snacks

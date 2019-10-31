@@ -1,0 +1,8 @@
+packages: hledger-lib
+          hledger
+          hledger-ui
+          hledger-web
+
+allow-newer:
+  brick:base
+  config-ini:containers

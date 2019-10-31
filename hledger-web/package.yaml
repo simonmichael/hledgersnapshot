@@ -1,0 +1,177 @@
+name: hledger-web
+version: 1.15.99
+synopsis: Web interface for the hledger accounting tool
+description: |
+  This is hledger's web interface.
+  It provides a more user-friendly and collaborative UI than the
+  command-line or terminal interfaces.
+
+  hledger is a cross-platform program for tracking money, time, or
+  any other commodity, using double-entry accounting and a simple,
+  editable file format. It is inspired by and largely compatible
+  with ledger(1).  hledger provides command-line, terminal and web
+  interfaces, and aims to be a reliable, practical tool for daily
+  use.
+category: Finance
+license: GPL-3
+author: Simon Michael <simon@joyful.com>
+maintainer: Simon Michael <simon@joyful.com>
+github: simonmichael/hledger
+homepage: http://hledger.org
+bug-reports: http://bugs.hledger.org
+stability: stable
+tested-with: GHC==8.0.2, GHC==8.2.2, GHC==8.4.3, GHC==8.6.5
+
+extra-source-files:
+- CHANGES.md
+- README
+- config/favicon.ico
+- config/keter.yaml
+- config/robots.txt
+- config/routes
+- config/settings.yml
+- static/css/*.css
+- static/css/*.map
+- static/fonts/*.eot
+- static/fonts/*.svg
+- static/fonts/*.ttf
+- static/fonts/*.woff
+- static/hledger.css
+- static/hledger.js
+- static/js/*.js
+- templates/*.hamlet
+- hledger-web.1
+- hledger-web.txt
+- hledger-web.info
+
+flags:
+  library-only:
+    description: Build for use with "yesod devel"
+    manual: false
+    default: false
+  dev:
+    description: Turn on development settings, like auto-reload templates.
+    manual: false
+    default: false
+  threaded:
+    description: Build with support for multithreaded execution.
+    manual: false
+    default: true
+
+ghc-options:
+- -Wall
+- -fwarn-tabs
+
+when:
+- condition: (flag(dev)) || (flag(library-only))
+  cpp-options: -DDEVELOPMENT
+# This causes a warning when uploading to hackage:
+#Package check reported the following warnings:
+# 'ghc-options: -O0' is not needed. Use the --disable-optimization configure flag.
+- condition: flag(dev)
+  ghc-options: -O0
+- condition: impl(ghc >=8)
+  ghc-options:
+  - -Wcompat
+  - -Wincomplete-uni-patterns
+  - -Wincomplete-record-updates
+  - -Wredundant-constraints
+
+library:
+  source-dirs: .
+  cpp-options: -DVERSION="1.15.99"
+  exposed-modules:
+  - Hledger.Web
+  - Hledger.Web.Application
+  - Hledger.Web.Foundation
+  - Hledger.Web.Handler.AddR
+  - Hledger.Web.Handler.EditR
+  - Hledger.Web.Handler.JournalR
+  - Hledger.Web.Handler.MiscR
+  - Hledger.Web.Handler.RegisterR
+  - Hledger.Web.Handler.UploadR
+  - Hledger.Web.Import
+  - Hledger.Web.Json
+  - Hledger.Web.Main
+  - Hledger.Web.Settings
+  - Hledger.Web.Settings.StaticFiles
+  - Hledger.Web.WebOptions
+  - Hledger.Web.Widget.AddForm
+  - Hledger.Web.Widget.Common
+  dependencies:
+  - hledger-lib >=1.15.99 && <1.16
+  - hledger >=1.15.99 && <1.16
+  - aeson
+  - base >=4.9 && <4.13
+  - blaze-html
+  - blaze-markup
+  - bytestring
+  - case-insensitive
+  - clientsession
+  - cmdargs >=0.10
+  - conduit
+  - conduit-extra >=1.1
+  - containers
+  - data-default
+  - Decimal
+  - directory
+  - filepath
+  - hjsmin
+  - http-conduit
+  - http-client
+  - http-types
+  - json
+  - megaparsec >=7.0.0 && <8
+  - mtl
+  - semigroups
+  - shakespeare >=2.0.2.2
+  - template-haskell
+  - text >=1.2
+  - time >=1.5
+  - transformers
+  - utf8-string
+  - wai
+  - wai-extra
+  - wai-handler-launch >=1.3
+  - wai-cors
+  - warp
+  - yaml
+  # on mac Sierra or greater, ghc 7 will fail to build yesod; don't try
+  when:
+    - condition: os(darwin) && impl(ghc < 8.0)
+      then:
+        buildable: false
+      else:
+        dependencies:
+        - yesod        >=1.4 && < 1.7
+        - yesod-core   >=1.4 && < 1.7
+        - yesod-form   >=1.4 && < 1.7
+        - yesod-static >=1.4 && < 1.7
+
+executables:
+  hledger-web:
+    source-dirs: app
+    main: main.hs
+    cpp-options: -DVERSION="1.15.99"
+    dependencies:
+    - base
+    - hledger-web
+    when:
+    - condition: flag(library-only)
+      buildable: false
+    - condition: flag(threaded)
+      ghc-options: -threaded
+    - condition: os(darwin) && impl(ghc < 8.0)
+      buildable: false
+
+# 2018/06 not building and not testing anything useful, disabled for now
+# tests:
+#   test:
+#     source-dirs: tests
+#     main: main.hs
+#     cpp-options: -DVERSION="1.15.99"
+#     dependencies:
+#     - base
+#     - hledger-web
+#     - hspec
+#     - yesod-test
